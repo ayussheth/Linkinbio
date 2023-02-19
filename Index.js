@@ -1,78 +1,37 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
-const { nanoid } = require('nanoid');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
+
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-const dataFile = './data.json';
+// Define an array to store the links
+let links = [];
 
-// Route to handle form submission and save data
-app.post('/save', (req, res) => {
-  const links = req.body;
-  const id = nanoid(10);
-  const data = {
-    id,
-    links,
+// Define a route to handle link submissions
+app.post('/links', (req, res) => {
+  const link = {
+    id: uuidv4(), // Generate a unique ID for the link
+    name: req.body.name,
+    url: req.body.url
   };
-  let jsonData = [];
-  try {
-    const dataStr = fs.readFileSync(dataFile);
-    jsonData = JSON.parse(dataStr);
-  } catch (err) {
-    console.error('Error reading data file:', err);
-  }
-  jsonData.push(data);
-  fs.writeFile(dataFile, JSON.stringify(jsonData), (err) => {
-    if (err) {
-      console.error('Error writing data file:', err);
-      res.sendStatus(500);
-    } else {
-      res.send(`Your link is: https://example.com/${id}`);
-    }
-  });
+  links.push(link);
+  res.json({ linkId: link.id }); // Return the link ID to the user
 });
 
-// Route to handle link redirect
-app.get('/:id', (req, res) => {
-  const id = req.params.id;
-  let jsonData = [];
-  try {
-    const dataStr = fs.readFileSync(dataFile);
-    jsonData = JSON.parse(dataStr);
-  } catch (err) {
-    console.error('Error reading data file:', err);
-    res.sendStatus(500);
-    return;
+// Define a route to handle link redirection
+app.get('/:linkId', (req, res) => {
+  const link = links.find(l => l.id === req.params.linkId);
+  if (link) {
+    res.redirect(link.url);
+  } else {
+    res.status(404).send('Link not found');
   }
-  const data = jsonData.find((d) => d.id === id);
-  if (!data) {
-    res.sendStatus(404);
-    return;
-  }
-  const links = data.links;
-  res.send(`
-    <html>
-      <head>
-        <title>My Linktree</title>
-      </head>
-      <body>
-        <ul>
-          ${Object.entries(links)
-            .map(
-              ([key, value]) =>
-                `<li><a href="${value}"><img src="https://www.google.com/s2/favicons?domain=${value}" width="16" height="16" style="vertical-align: middle;"> ${key}</a></li>`
-            )
-            .join('')}
-        </ul>
-      </body>
-    </html>
-  `);
 });
 
 // Start the server
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+app.listen(3000, () => {
+  console.log('Server started on port 3000');
 });
