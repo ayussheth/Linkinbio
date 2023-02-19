@@ -1,0 +1,51 @@
+body {
+	font-family: Arial, sans-serif;
+	margin: 0;
+	padding: 0;
+}
+
+.container {
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 20px;
+	box-sizing: border-box;
+}
+
+.header {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+h1 {
+	font-size: 2em;
+	margin: 0;
+}
+
+.links {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.link {
+	flex-basis: 33.33%;
+	padding: 10px;
+	box-sizing: border-box;
+}
+
+.link label {
+	display: block;
+	margin-bottom: 5px;
+}
+
+.link input {
+	display: block;
+	width: 100%;
+	padding: 5px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+
+.footer {
+	text-align: right;
+	margin-top: 20px;
+}
